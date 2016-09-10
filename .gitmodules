@@ -7,3 +7,6 @@
 [submodule "vendor/github.com/codegangsta/negroni"]
 	path = vendor/github.com/codegangsta/negroni
 	url = https://github.com/codegangsta/negroni
+[submodule "vendor/github.com/gorilla/mux"]
+	path = vendor/github.com/gorilla/mux
+	url = https://github.com/gorilla/mux
