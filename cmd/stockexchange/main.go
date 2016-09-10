@@ -2,9 +2,12 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
@@ -13,7 +16,7 @@ import (
 var addr string
 
 func init() {
-	flag.StringVar(&addr, "addr", ":9292", "Listen and serve HTTP on host:port")
+	flag.StringVar(&addr, "addr", fmt.Sprintf(":%d", GetenvInt("PORT", 9292)), "Listen and serve HTTP on host:port")
 }
 
 func main() {
@@ -33,4 +36,13 @@ func main() {
 
 	log.Printf("StackExchange started. HTTP listen and serve on %s", addr)
 	http.ListenAndServe(addr, router)
+}
+
+func GetenvInt(name string, defaultValue int) int {
+	if envValue := os.Getenv(name); envValue != "" {
+		if value, err := strconv.Atoi(envValue); err == nil {
+			return value
+		}
+	}
+	return defaultValue
 }
