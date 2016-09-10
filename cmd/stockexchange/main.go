@@ -11,6 +11,7 @@ import (
 
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
+	"github.com/svett/stockexchange"
 )
 
 var addr string
@@ -28,14 +29,13 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	router.Handle("/", http.NotFoundHandler())
+	router.HandleFunc("/", stockexchange.Index)
 
-	server := negroni.New()
-	server.Use(negroni.NewRecovery())
+	server := negroni.Classic()
 	server.UseHandler(router)
 
 	log.Printf("StackExchange started. HTTP listen and serve on %s", addr)
-	http.ListenAndServe(addr, router)
+	http.ListenAndServe(addr, server)
 }
 
 func GetenvInt(name string, defaultValue int) int {

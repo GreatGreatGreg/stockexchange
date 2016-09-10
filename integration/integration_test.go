@@ -44,8 +44,10 @@ var _ = Describe("Integration", func() {
 
 		It("is listenting on that HTTP port", func() {
 			Expect(sessionErr).NotTo(HaveOccurred())
-			_, err := http.Get("http://127.0.0.1:8899")
+			resp, err := http.Get("http://127.0.0.1:8899")
 			Expect(err).NotTo(HaveOccurred())
+			defer resp.Body.Close()
+			Expect(resp.StatusCode).To(Equal(http.StatusOK))
 		})
 
 		Context("when the port is not integer", func() {
