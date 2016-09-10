@@ -4,3 +4,6 @@
 [submodule "vendor/github.com/onsi/gomega"]
 	path = vendor/github.com/onsi/gomega
 	url = https://github.com/onsi/gomega
+[submodule "vendor/github.com/codegangsta/negroni"]
+	path = vendor/github.com/codegangsta/negroni
+	url = https://github.com/codegangsta/negroni
