@@ -8,10 +8,10 @@ type Share struct {
 	Symbol string `json:"symbol"`
 	// Name of the company
 	Name string `json:"name"`
-	// Price is the price that you bought
-	Price float32
+	// PaidPrice is the price that you bought
+	PaidPrice float32 `json:"paidPrice"`
 	// Quantity of shares
-	Quantity int
+	Quantity int `json:"quantity"`
 }
 
 // Portfolio is a stock trader that buys and sell shares
@@ -39,10 +39,10 @@ func (p *Portfolio) Buy(stock *Stock, quantity int) error {
 	}
 
 	share := &Share{
-		Symbol:   stock.Symbol,
-		Name:     stock.Name,
-		Price:    stock.AskPrice,
-		Quantity: quantity,
+		Symbol:    stock.Symbol,
+		Name:      stock.Name,
+		PaidPrice: stock.AskPrice,
+		Quantity:  quantity,
 	}
 
 	p.Shares = append(p.Shares, share)
@@ -64,7 +64,7 @@ func (p *Portfolio) Sell(symbol string, price float32, quantity int) error {
 			if quantity > share.Quantity {
 				return fmt.Errorf("The desired quantity is greater than share quantity")
 			}
-			share.Price = price
+			share.PaidPrice = price
 			share.Quantity -= quantity
 			if share.Quantity == 0 {
 				p.Shares = deleteAt(p.Shares, index)

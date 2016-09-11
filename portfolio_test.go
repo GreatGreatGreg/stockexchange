@@ -47,7 +47,7 @@ var _ = Describe("Portfolio", func() {
 			share := portfolio.Shares[0]
 			Expect(share.Symbol).To(Equal(stockOne.Symbol))
 			Expect(share.Name).To(Equal(stockOne.Name))
-			Expect(share.Price).To(Equal(stockOne.AskPrice))
+			Expect(share.PaidPrice).To(Equal(stockOne.AskPrice))
 			Expect(share.Quantity).To(Equal(10))
 
 			Expect(portfolio.Balance).To(Equal(originalBalance - 10*stockOne.AskPrice))
@@ -68,7 +68,7 @@ var _ = Describe("Portfolio", func() {
 				share := portfolio.Shares[0]
 				Expect(share.Symbol).To(Equal(stockOne.Symbol))
 				Expect(share.Name).To(Equal(stockOne.Name))
-				Expect(share.Price).To(Equal(stockOne.AskPrice))
+				Expect(share.PaidPrice).To(Equal(stockOne.AskPrice))
 				Expect(share.Quantity).To(Equal(20))
 
 				Expect(portfolio.Balance).To(Equal(originalBalance - 20*stockOne.AskPrice))
