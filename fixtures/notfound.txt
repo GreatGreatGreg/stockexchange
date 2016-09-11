@@ -1,0 +1,8 @@
+{
+  "null": {
+    "error": {
+      "code": 1,
+      "message": "Unknown symbol."
+    }
+  }
+}
