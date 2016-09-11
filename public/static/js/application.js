@@ -28,53 +28,9 @@ class NavigationBar extends React.Component {
   }
 }
 
-class GridView extends React.Component {
-  constructor() {
-    super();
-  }
-
-  render() {
-    let element;
-
-    if(this.props.source.length == 0) {
-      element = (<h4 className="text-center">{this.props.noContentText}</h4>);
-    } else {
-      element = (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Symbol</th>
-              <th>Name</th>
-              <th>Ask Price</th>
-              <th>Bid Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              this.props.source.map(function(item) {
-                return (
-                  <tr key={item.symbol}>
-                    <th scope="row">{item.symbol}</th>
-                    <td>{item.name}</td>
-                    <td>{item.askPrice}</td>
-                    <td>{item.bidPrice}</td>
-                  </tr>
-                );
-              })
-            }
-          </tbody>
-        </table>
-      );
-    }
-
-    return element
-  }
-}
-
 class Portfolio extends React.Component {
   constructor() {
     super();
-    this.state = {balance: 100000, stock: []}
   }
 
   render() {
@@ -83,11 +39,34 @@ class Portfolio extends React.Component {
         <div className="panel-heading">
           <h3 className="panel-title">
             <span>Portfolio</span>
-            <span className="text-right pull-right">${this.state.balance}</span>
           </h3>
         </div>
         <div className="panel-body">
-          <GridView source={this.state.stock} noContentText="Your portfolio is empty"/>
+          <table className="table table-hover">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Paid Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                this.props.value.shares.map(function(item) {
+                  return (
+                    <tr key={item.symbol}>
+                      <th scope="row">{item.symbol}</th>
+                      <td>{item.name}</td>
+                      <td>{item.paidPrice}</td>
+                    </tr>
+                  );
+                })
+              }
+            </tbody>
+          </table>
+        </div>
+        <div className="panel-footer">
+          <span className="text-right text-uppercase"><strong>Cash ${this.props.value.balance}</strong></span>
         </div>
       </div>
     );
@@ -102,7 +81,7 @@ class SearchContainer extends React.Component {
   render() {
     if(this.props.infoMessage) {
       return (
-        <div className="panel panel-info">
+        <div className="panel panel-danger">
           <div className="panel-body">
             <h4 className="text-center">{this.props.infoMessage}</h4>
           </div>
@@ -112,9 +91,14 @@ class SearchContainer extends React.Component {
 
     if(this.props.result.length > 0) {
       let grid = (
-        <div className="panel panel-info">
+        <div className="panel panel-warning">
+          <div className="panel-heading">
+            <h3 className="panel-title">
+              <span>Stock</span>
+            </h3>
+          </div>
           <div className="panel-body">
-            <table className="table">
+            <table className="table table-hover">
               <thead>
                 <tr>
                   <th>Symbol</th>
@@ -173,7 +157,7 @@ class SearchContainer extends React.Component {
 class ApplicationContainer extends React.Component {
   constructor() {
     super();
-    this.state = {result: [], message: ""}
+    this.state = {portfolio: {balance: 100000, shares:[]}, search:{result: [], message: ""}}
     this.search = this.search.bind(this);
   }
 
@@ -182,7 +166,8 @@ class ApplicationContainer extends React.Component {
       <div>
         <NavigationBar onSearchClick={this.search} />
         <div className="container container-small">
-          <SearchContainer result={this.state.result} infoMessage={this.state.message} />
+          <Portfolio value={this.state.portfolio} />
+          <SearchContainer result={this.state.search.result} infoMessage={this.state.search.message} />
         </div>
       </div>
     );
@@ -193,14 +178,13 @@ class ApplicationContainer extends React.Component {
       url: "/api/v1/search?query="+text,
       dataType: 'json',
       error: function() {
-        this.setState({message: "Nothing has been found", result: []});
+        this.setState({portfolio: {balance: 100000, shares:[]}, search:{result: [], message: "Nothing has been found"}})
       }.bind(this),
-      success: function(shares) {
-        this.setState({message: "", result: shares});
+      success: function(stock) {
+        this.setState({portfolio: {balance: 100000, shares:[]}, search:{result: stock, message: ""}})
       }.bind(this)
     });
   }
 }
 
 ReactDOM.render(<ApplicationContainer/>, document.getElementById('app'));
-
