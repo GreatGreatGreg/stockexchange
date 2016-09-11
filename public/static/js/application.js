@@ -34,6 +34,24 @@ class Portfolio extends React.Component {
   }
 
   render() {
+    if(this.props.value.shares.length == 0) {
+      return (
+        <div className="panel panel-info">
+          <div className="panel-heading">
+            <h3 className="panel-title">
+              <span>Portfolio</span>
+            </h3>
+          </div>
+          <div className="panel-body">
+            <h4 className="text-center">Your portfolio is empty</h4>
+          </div>
+          <div className="panel-footer">
+            <span className="text-right text-uppercase"><strong>Cash ${this.props.value.balance}</strong></span>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="panel panel-info">
         <div className="panel-heading">
