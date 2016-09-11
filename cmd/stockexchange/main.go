@@ -22,14 +22,14 @@ func init() {
 
 func main() {
 	flag.Parse()
-
 	_, _, err := net.SplitHostPort(addr)
 	if err != nil {
 		log.Fatalf("The provided %s addr is not correct format (ex. host:port)", addr)
 	}
 
 	router := mux.NewRouter()
-	router.HandleFunc("/", stockexchange.Index)
+	router.HandleFunc("/", stockexchange.Index).Methods("GET")
+	router.HandleFunc("/api/v1/search", stockexchange.Search).Methods("GET")
 
 	server := negroni.Classic()
 	server.UseHandler(router)

@@ -33,13 +33,39 @@ var _ = Describe("Integration", func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 
-	Describe("Environment variable PORT", func() {
+	Context("when command line argument is provided", func() {
+		BeforeEach(func() {
+			args = []string{"--addr=127.0.0.1:8080"}
+		})
+
+		It("does not overried the PORT", func() {
+			Expect(sessionErr).NotTo(HaveOccurred())
+			_, err := http.Get("http://127.0.0.1:8080")
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
+	Describe("API", func() {
+		BeforeEach(func() {
+			args = []string{"--addr=127.0.0.1:8080"}
+		})
+
+		It("handles search requests", func() {
+			Expect(sessionErr).NotTo(HaveOccurred())
+			resp, err := http.Get("http://127.0.0.1:8080/api/v1/search")
+			Expect(err).NotTo(HaveOccurred())
+			defer resp.Body.Close()
+			Expect(resp.StatusCode).To(Equal(http.StatusOK))
+		})
+	})
+
+	XDescribe("Environment variable PORT", func() {
 		BeforeEach(func() {
 			os.Setenv("PORT", "8899")
 		})
 
 		AfterEach(func() {
-			os.Clearenv()
+			os.Unsetenv("PORT")
 		})
 
 		It("is listenting on that HTTP port", func() {
@@ -58,18 +84,6 @@ var _ = Describe("Integration", func() {
 			It("is listenting on the default HTTP port", func() {
 				Expect(sessionErr).NotTo(HaveOccurred())
 				_, err := http.Get("http://127.0.0.1:9292")
-				Expect(err).NotTo(HaveOccurred())
-			})
-		})
-
-		Context("when command line argument is provided", func() {
-			BeforeEach(func() {
-				args = []string{"--addr=127.0.0.1:8080"}
-			})
-
-			It("does not overried the PORT", func() {
-				Expect(sessionErr).NotTo(HaveOccurred())
-				_, err := http.Get("http://127.0.0.1:8080")
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})

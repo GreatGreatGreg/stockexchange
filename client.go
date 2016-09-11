@@ -38,6 +38,11 @@ func (err SearchError) Error() string {
 	return err.Message
 }
 
+// IsNotExistSybmol determines whether the symbol is not found
+func IsNotExistSybmol(err error) bool {
+	return err.Error() == "Unknown symbol."
+}
+
 // SearchResult is returned by the search
 type SearchResult struct {
 	Stock
