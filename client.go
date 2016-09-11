@@ -81,8 +81,6 @@ func (client *Client) Search(symbol string) ([]Stock, error) {
 		return result, fmt.Errorf("The data cannot be decoded as JSON")
 	}
 
-	fmt.Println(data)
-
 	for key, item := range data {
 		if key == "null" {
 			return []Stock{}, item.SearchError
