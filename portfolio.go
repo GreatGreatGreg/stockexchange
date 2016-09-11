@@ -17,9 +17,9 @@ type Share struct {
 // Portfolio is a stock trader that buys and sell shares
 type Portfolio struct {
 	// Balance that the trader has
-	Balance float32
+	Balance float32 `json:"balance"`
 	// Shares that the trader has
-	Shares []*Share
+	Shares []*Share `json:"shares"`
 }
 
 // Buy performs a buy operation and adds the share to the portfolio

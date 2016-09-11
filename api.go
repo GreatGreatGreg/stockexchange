@@ -12,7 +12,7 @@ import (
 )
 
 // store is the backend session store
-var store = sessions.NewFilesystemStore("", []byte("this-should-be-an-env-variable"))
+var store = sessions.NewCookieStore([]byte("this-should-be-an-env-variable"))
 
 func init() {
 	gob.Register(&Portfolio{})
@@ -131,7 +131,7 @@ func Sell(w http.ResponseWriter, request *http.Request) {
 }
 
 func OpenSession(w http.ResponseWriter, r *http.Request, edit func(*Portfolio) error) error {
-	session, err := store.Get(r, "stockexchange")
+	session, err := store.Get(r, "stockbroker")
 	if err != nil {
 		return err
 	}
