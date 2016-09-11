@@ -80,6 +80,12 @@ var _ = Describe("Portfolio", func() {
 				Expect(portfolio.Buy(stockOne, 1000)).To(MatchError("Insufficient funds"))
 			})
 		})
+
+		Context("when the quantity is negative number", func() {
+			It("returns an error", func() {
+				Expect(portfolio.Buy(stockOne, -10)).To(MatchError("The quantity cannot be negative number"))
+			})
+		})
 	})
 
 	Describe("Sell", func() {

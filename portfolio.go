@@ -29,6 +29,10 @@ func (p *Portfolio) Buy(stock *Stock, quantity int) error {
 		return fmt.Errorf("Insufficient funds")
 	}
 
+	if quantity < 0 {
+		return fmt.Errorf("The quantity cannot be negative number")
+	}
+
 	p.Balance -= price
 
 	for _, share := range p.Shares {
