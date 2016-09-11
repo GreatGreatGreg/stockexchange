@@ -1,10 +1,14 @@
 package integration_test
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"net/http"
 	"os"
 
 	"github.com/onsi/gomega/gexec"
+	"github.com/svett/stockexchange"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -46,13 +50,34 @@ var _ = Describe("Integration", func() {
 	})
 
 	Describe("API", func() {
+		var stockData io.Reader
+
 		BeforeEach(func() {
 			args = []string{"--addr=127.0.0.1:8080"}
+
+			stock := &stockexchange.Stock{
+				Symbol:   "B",
+				Name:     "Bengaza",
+				AskPrice: 5,
+				BidPrice: 10,
+			}
+
+			data, err := json.Marshal(stock)
+			Expect(err).NotTo(HaveOccurred())
+			stockData = bytes.NewBuffer(data)
 		})
 
 		It("handles search requests", func() {
 			Expect(sessionErr).NotTo(HaveOccurred())
-			resp, err := http.Get("http://127.0.0.1:8080/api/v1/search")
+			resp, err := http.Get("http://127.0.0.1:8080/api/v1/search?query=A")
+			Expect(err).NotTo(HaveOccurred())
+			defer resp.Body.Close()
+			Expect(resp.StatusCode).To(Equal(http.StatusOK))
+		})
+
+		It("handles buy requests", func() {
+			Expect(sessionErr).NotTo(HaveOccurred())
+			resp, err := http.Post("http://127.0.0.1:8080/api/v1/buy?quantity=2", "application/json", stockData)
 			Expect(err).NotTo(HaveOccurred())
 			defer resp.Body.Close()
 			Expect(resp.StatusCode).To(Equal(http.StatusOK))

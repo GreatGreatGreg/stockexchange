@@ -29,6 +29,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", stockexchange.Index).Methods("GET")
+	router.HandleFunc("/api/v1/buy", stockexchange.Buy).Methods("POST")
 	router.HandleFunc("/api/v1/search", stockexchange.Search).Methods("GET")
 
 	server := negroni.Classic()

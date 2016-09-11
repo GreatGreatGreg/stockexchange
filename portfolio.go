@@ -24,13 +24,13 @@ type Portfolio struct {
 
 // Buy performs a buy operation and adds the share to the portfolio
 func (p *Portfolio) Buy(stock *Stock, quantity int) error {
+	if quantity < 0 {
+		return fmt.Errorf("The quantity cannot be negative number")
+	}
+
 	price := stock.AskPrice * float32(quantity)
 	if price > p.Balance {
 		return fmt.Errorf("Insufficient funds")
-	}
-
-	if quantity < 0 {
-		return fmt.Errorf("The quantity cannot be negative number")
 	}
 
 	p.Balance -= price
