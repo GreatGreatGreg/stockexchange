@@ -48,3 +48,34 @@ func (p *Portfolio) Buy(stock *Stock, quantity int) error {
 	p.Shares = append(p.Shares, share)
 	return nil
 }
+
+// Sell performs a sell operation and remove the share from the portfolio
+func (p *Portfolio) Sell(symbol string, price float32, quantity int) error {
+	if price < 0 {
+		return fmt.Errorf("The price cannot be negative number")
+	}
+
+	if quantity < 0 {
+		return fmt.Errorf("The quantity cannot be negative number")
+	}
+
+	for index, share := range p.Shares {
+		if share.Symbol == symbol {
+			if quantity > share.Quantity {
+				return fmt.Errorf("The desired quantity is greater than share quantity")
+			}
+			share.Price = price
+			share.Quantity -= quantity
+			if share.Quantity == 0 {
+				p.Shares = deleteAt(p.Shares, index)
+			}
+			p.Balance += price * float32(quantity)
+			return nil
+		}
+	}
+	return fmt.Errorf("The desired share '%s' does not exist in this portfolio", symbol)
+}
+
+func deleteAt(shares []*Share, index int) []*Share {
+	return append(shares[:index], shares[index+1:]...)
+}
