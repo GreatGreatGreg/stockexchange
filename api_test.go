@@ -49,6 +49,23 @@ var _ = Describe("API", func() {
 		server.Close()
 	})
 
+	Describe("Balance", func() {
+		BeforeEach(func() {
+			handler = http.HandlerFunc(stockexchange.Balance)
+		})
+
+		It("returns the portfolio", func() {
+			resp, err := client.Get(server.URL)
+			Expect(err).NotTo(HaveOccurred())
+
+			defer resp.Body.Close()
+			Expect(resp.StatusCode).To(Equal(http.StatusOK))
+
+			var result stockexchange.Portfolio
+			Expect(json.NewDecoder(resp.Body).Decode(&result)).To(Succeed())
+		})
+	})
+
 	Describe("Search", func() {
 		BeforeEach(func() {
 			handler = http.HandlerFunc(stockexchange.Search)

@@ -32,6 +32,7 @@ func main() {
 	router.HandleFunc("/api/v1/buy", stockexchange.Buy).Methods("POST")
 	router.HandleFunc("/api/v1/sell", stockexchange.Sell).Methods("POST")
 	router.HandleFunc("/api/v1/search", stockexchange.Search).Methods("GET")
+	router.HandleFunc("/api/v1/portfolio", stockexchange.Balance).Methods("GET")
 
 	server := negroni.Classic()
 	server.UseHandler(router)

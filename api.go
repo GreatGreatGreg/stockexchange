@@ -18,6 +18,18 @@ func init() {
 	gob.Register(&Portfolio{})
 }
 
+func Balance(w http.ResponseWriter, request *http.Request) {
+	err := OpenSession(w, request, func(p *Portfolio) error {
+		encoder := giraffe.NewHTTPEncoder(w)
+		encoder.EncodeJSON(p)
+		return nil
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func Search(w http.ResponseWriter, request *http.Request) {
 	query := request.FormValue("query")
 	if query == "" {

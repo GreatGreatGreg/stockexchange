@@ -191,15 +191,25 @@ class ApplicationContainer extends React.Component {
     );
   }
 
+  componentDidMount() {
+    $.ajax({
+      url: "/api/v1/portfolio",
+      dataType: 'json',
+      success: function(portfolio) {
+        this.setState({portfolio: portfolio, search: this.state.search})
+      }.bind(this)
+    });
+  }
+
   search(text) {
     $.ajax({
       url: "/api/v1/search?query="+text,
       dataType: 'json',
       error: function() {
-        this.setState({portfolio: {balance: 100000, shares:[]}, search:{result: [], message: "Nothing has been found"}})
+        this.setState({portfolio: this.state.portfolio, search:{result: [], message: "Nothing has been found"}})
       }.bind(this),
       success: function(stock) {
-        this.setState({portfolio: {balance: 100000, shares:[]}, search:{result: stock, message: ""}})
+        this.setState({portfolio: this.state.portfolio, search:{result: stock, message: ""}})
       }.bind(this)
     });
   }

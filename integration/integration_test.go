@@ -84,18 +84,19 @@ var _ = Describe("Integration", func() {
 		})
 	})
 
-	XDescribe("Environment variable PORT", func() {
+	Describe("Environment variable PORT", func() {
 		BeforeEach(func() {
-			os.Setenv("PORT", "8899")
+			args = []string{}
+			runner.Setenv("PORT", "8899")
 		})
 
 		AfterEach(func() {
-			os.Unsetenv("PORT")
+			runner.Clearenv()
 		})
 
 		It("is listenting on that HTTP port", func() {
 			Expect(sessionErr).NotTo(HaveOccurred())
-			resp, err := http.Get("http://127.0.0.1:8899")
+			resp, err := http.Get("http://127.0.0.1:8899/api/v1/portfolio")
 			Expect(err).NotTo(HaveOccurred())
 			defer resp.Body.Close()
 			Expect(resp.StatusCode).To(Equal(http.StatusOK))

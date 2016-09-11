@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"time"
 
@@ -13,6 +14,8 @@ import (
 type StockExchangeRunner struct {
 	// path to the actual binary
 	path string
+	// env envorionemtn variables
+	env []string
 
 	// Stderr standard output stream
 	Stdout io.Writer
@@ -30,8 +33,17 @@ func (ex *StockExchangeRunner) Compile() error {
 		return err
 	}
 
+	ex.env = []string{}
 	ex.path = bin
 	return nil
+}
+
+func (ex *StockExchangeRunner) Setenv(name, value string) {
+	ex.env = append(ex.env, fmt.Sprintf("%s=%s", name, value))
+}
+
+func (ex *StockExchangeRunner) Clearenv() {
+	ex.env = []string{}
 }
 
 func (ex *StockExchangeRunner) Start(args ...string) (*gexec.Session, error) {
@@ -39,7 +51,9 @@ func (ex *StockExchangeRunner) Start(args ...string) (*gexec.Session, error) {
 	stdout := io.MultiWriter(buffer, ex.Stdout)
 	stderr := io.MultiWriter(buffer, ex.Stderr)
 
-	session, err := gexec.Start(exec.Command(ex.path, args...), stdout, stderr)
+	cmd := exec.Command(ex.path, args...)
+	cmd.Env = append(os.Environ(), ex.env...)
+	session, err := gexec.Start(cmd, stdout, stderr)
 
 	timeout := time.After(ex.StartCheckTimeout)
 	detector := buffer.Detect(ex.StartCheck)
