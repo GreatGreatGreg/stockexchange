@@ -1,0 +1,16 @@
+package: github.com/svett/stockexchange
+import:
+- package: github.com/codegangsta/negroni
+  version: v0.2.0
+- package: github.com/gorilla/mux
+  version: v1.1
+- package: github.com/gorilla/sessions
+- package: github.com/onsi/gomega
+  version: v1.0
+  subpackages:
+  - gbytes
+  - gexec
+- package: github.com/svett/giraffe
+testImport:
+- package: github.com/onsi/ginkgo
+  version: v1.2.0
