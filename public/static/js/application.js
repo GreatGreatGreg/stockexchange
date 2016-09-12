@@ -66,6 +66,7 @@ class Portfolio extends React.Component {
                 <th>Symbol</th>
                 <th>Name</th>
                 <th>Paid Price</th>
+                <th>Quantity</th>
               </tr>
             </thead>
             <tbody>
@@ -76,6 +77,7 @@ class Portfolio extends React.Component {
                       <th scope="row">{item.symbol}</th>
                       <td>{item.name}</td>
                       <td>{item.paidPrice}</td>
+                      <td>{item.quantity}</td>
                     </tr>
                   );
                 })
@@ -145,10 +147,10 @@ class SearchContainer extends React.Component {
             <div className="input-group">
               <div className="input-group">
                 <span className="input-group-addon">Quantity</span>
-                <input type="text" className="form-control" aria-label="hidden"/>
+                <input type="text" className="form-control" aria-label="hidden" ref="quantityBox" />
                 <div className="input-group-btn">
-                  <button type="button" className="btn btn-default">Buy</button>
-                  <button type="button" className="btn btn-default">Sell</button>
+                  <button type="button" className="btn btn-default" onClick={() => this.props.onBuyClick(this.props.result[0], this.refs.quantityBox.value)}>Buy</button>
+                  <button type="button" className="btn btn-default" onClick={this.props.sell}>Sell</button>
                 </div>
               </div>
             </div>
@@ -188,13 +190,16 @@ class Alert extends React.Component {
 class ApplicationContainer extends React.Component {
   constructor() {
     super();
+
     this.state = {
       portfolio: {balance: 100000, shares:[]},
       search:{result: [], message: ""},
       alert: {level: "info", message: ""},
     };
+
     this.search = this.search.bind(this);
     this.buy = this.buy.bind(this);
+    this.sell = this.sell.bind(this);
   }
 
   render() {
@@ -203,7 +208,7 @@ class ApplicationContainer extends React.Component {
         <NavigationBar onSearchClick={this.search} />
         <div className="container container-small">
           <Portfolio value={this.state.portfolio} />
-          <SearchContainer result={this.state.search.result} message={this.state.search.message} />
+          <SearchContainer result={this.state.search.result} message={this.state.search.message} onBuyClick={this.buy} onSellClick={this.sell}/>
           <Alert level={this.state.alert.level} message={this.state.alert.message}/>
         </div>
       </div>
@@ -239,15 +244,21 @@ class ApplicationContainer extends React.Component {
   buy(stock, quantity) {
     $.ajax({
       url: "/api/v1/buy?quantity="+quantity,
+      contentType: "application/json; charset=utf-8",
+      type: "POST",
       dataType: 'json',
-      data: stock,
-      error: function(msg) {
-        this.setState({portfolio: portfolio, search: this.state.search})
+      data:  JSON.stringify(stock),
+      error: function(jqXHR, textStatus, errorThrown) {
+      this.setState({alert: {level: "danger", message: jqXHR.responseText}});
       }.bind(this),
       success: function(portfolio) {
         this.setState({portfolio: portfolio, search: this.state.search})
       }.bind(this)
     });
+  }
+
+  sell(symbol, price, quantity) {
+
   }
 }
 
