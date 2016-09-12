@@ -183,6 +183,10 @@ class Alert extends React.Component {
     this.state = {visible: true};
   }
 
+  componentWillReceiveProps() {
+    this.setState({visible: true});
+  }
+
   render() {
     if(this.state.visible && this.props.message) {
       return (
