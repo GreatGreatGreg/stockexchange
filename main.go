@@ -11,7 +11,7 @@ import (
 
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
-	"github.com/svett/stockexchange"
+	"github.com/svett/stockexchange/stockexchange"
 )
 
 var addr string
