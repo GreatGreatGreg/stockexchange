@@ -5,7 +5,7 @@ instance [here](https://stockex.herokuapp.com/).
 
 The application is written in [Golang](https://www.golang.org),
 [React](http://react-bootstrap.github.io) and
-Boostrap(https://getbootstrap.com)
+[Boostrap](https://getbootstrap.com)
 
 # Getting Started
 
