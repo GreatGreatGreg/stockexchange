@@ -96,6 +96,15 @@ class Portfolio extends React.Component {
 class SearchContainer extends React.Component {
   constructor() {
     super();
+    this.validate = this.validate.bind(this);
+  }
+
+  validate(e) {
+    let charCode = (e.which) ? e.which : event.keyCode
+
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+      e.preventDefault();
+    }
   }
 
   render() {
@@ -147,10 +156,10 @@ class SearchContainer extends React.Component {
             <div className="input-group">
               <div className="input-group">
                 <span className="input-group-addon">Quantity</span>
-                <input type="text" className="form-control" aria-label="hidden" ref="quantityBox" />
+                <input type="number" pattern="[0-9]" min="1" defaultValue="1" required="required" className="form-control" aria-label="hidden" ref="quantityBox" onKeyPress={this.validate} />
                 <div className="input-group-btn">
                   <button type="button" className="btn btn-default" onClick={() => this.props.onBuyClick(this.props.result[0], this.refs.quantityBox.value)}>Buy</button>
-                  <button type="button" className="btn btn-default" onClick={this.props.sell}>Sell</button>
+                  <button type="button" className="btn btn-default" onClick={() => this.props.onSellClick(this.props.result[0], this.refs.quantityBox.value)}>Sell</button>
                 </div>
               </div>
             </div>
@@ -249,16 +258,33 @@ class ApplicationContainer extends React.Component {
       dataType: 'json',
       data:  JSON.stringify(stock),
       error: function(jqXHR, textStatus, errorThrown) {
-      this.setState({alert: {level: "danger", message: jqXHR.responseText}});
+        this.setState({alert: {level: "danger", message: jqXHR.responseText}});
       }.bind(this),
       success: function(portfolio) {
-        this.setState({portfolio: portfolio, search: this.state.search})
+        this.setState({portfolio: portfolio, alert: {level: "info", message: ""}})
       }.bind(this)
     });
   }
 
-  sell(symbol, price, quantity) {
-
+  sell(stock, quantity) {
+    let invoice = {
+      Symbol: stock.symbol,
+      Price: stock.bidPrice,
+      Quantity: parseInt(quantity),
+    };
+    $.ajax({
+      url: "/api/v1/sell",
+      contentType: "application/json; charset=utf-8",
+      type: "POST",
+      dataType: 'json',
+      data:  JSON.stringify(invoice),
+      error: function(jqXHR, textStatus, errorThrown) {
+        this.setState({alert: {level: "danger", message: jqXHR.responseText}});
+      }.bind(this),
+      success: function(portfolio) {
+        this.setState({portfolio: portfolio, alert: {level: "info", message: ""}})
+      }.bind(this)
+    });
   }
 }
 

@@ -99,42 +99,73 @@ var _ = Describe("Portfolio", func() {
 			originQuantity := share.Quantity
 			originBalance := portfolio.Balance
 
-			Expect(portfolio.Sell(stockOne.Symbol, 5, 10)).To(Succeed())
+			invoice := &stockexchange.Invoice{
+				Symbol:   stockOne.Symbol,
+				Price:    5,
+				Quantity: 10,
+			}
+
+			Expect(portfolio.Sell(invoice)).To(Succeed())
 			Expect(portfolio.Shares).To(HaveLen(1))
-			Expect(share.Quantity).To(Equal(originQuantity - 10))
-			Expect(portfolio.Balance).To(Equal(originBalance + float32(5*10)))
+			Expect(share.Quantity).To(Equal(originQuantity - invoice.Quantity))
+			Expect(portfolio.Balance).To(Equal(originBalance + float32(invoice.Price*float32(invoice.Quantity))))
 		})
 
 		Context("when the quantity of the share is sold", func() {
 			It("should not have that share", func() {
 				originBalance := portfolio.Balance
-				Expect(portfolio.Sell(stockOne.Symbol, 10, 20)).To(Succeed())
+				invoice := &stockexchange.Invoice{
+					Symbol:   stockOne.Symbol,
+					Price:    10,
+					Quantity: 20,
+				}
+				Expect(portfolio.Sell(invoice)).To(Succeed())
 				Expect(portfolio.Shares).To(HaveLen(0))
-				Expect(portfolio.Balance).To(Equal(originBalance + float32(20*10)))
+				Expect(portfolio.Balance).To(Equal(originBalance + float32(invoice.Price*float32(invoice.Quantity))))
 			})
 		})
 
 		Context("when the quantity is greater than the share quantity", func() {
 			It("returns an error", func() {
-				Expect(portfolio.Sell(stockOne.Symbol, 10, 200)).To(MatchError("The desired quantity is greater than share quantity"))
+				invoice := &stockexchange.Invoice{
+					Symbol:   stockOne.Symbol,
+					Price:    10,
+					Quantity: 200,
+				}
+				Expect(portfolio.Sell(invoice)).To(MatchError("The desired quantity is greater than share quantity"))
 			})
 		})
 
 		Context("when the share does not exists", func() {
 			It("returns an error", func() {
-				Expect(portfolio.Sell("W", 10, 200)).To(MatchError("The desired share 'W' does not exist in this portfolio"))
+				invoice := &stockexchange.Invoice{
+					Symbol:   "W",
+					Price:    10,
+					Quantity: 200,
+				}
+				Expect(portfolio.Sell(invoice)).To(MatchError("The desired share 'W' does not exist in this portfolio"))
 			})
 		})
 
 		Context("when the price is negative", func() {
 			It("returns an error", func() {
-				Expect(portfolio.Sell(stockOne.Symbol, -10, 10)).To(MatchError("The price cannot be negative number"))
+				invoice := &stockexchange.Invoice{
+					Symbol:   stockOne.Symbol,
+					Price:    -10,
+					Quantity: 200,
+				}
+				Expect(portfolio.Sell(invoice)).To(MatchError("The price cannot be negative number"))
 			})
 		})
 
 		Context("when the quantity is negative", func() {
 			It("returns an error", func() {
-				Expect(portfolio.Sell(stockOne.Symbol, 10, -10)).To(MatchError("The quantity cannot be negative number"))
+				invoice := &stockexchange.Invoice{
+					Symbol:   stockOne.Symbol,
+					Price:    10,
+					Quantity: -200,
+				}
+				Expect(portfolio.Sell(invoice)).To(MatchError("The quantity cannot be negative number"))
 			})
 		})
 	})

@@ -19,29 +19,45 @@ import (
 
 var _ = Describe("API", func() {
 	var (
-		handler      http.Handler
-		cookie       *cookiejar.Jar
-		client       *http.Client
-		server       *httptest.Server
-		stockOne     *stockexchange.Stock
-		stockOneJSON io.Reader
+		handler     http.Handler
+		cookie      *cookiejar.Jar
+		client      *http.Client
+		server      *httptest.Server
+		stock       *stockexchange.Stock
+		stockJSON   io.Reader
+		invoice     *stockexchange.Invoice
+		invoiceJSON io.Reader
 	)
 
-	JustBeforeEach(func() {
+	BeforeEach(func() {
 		cookie, _ = cookiejar.New(nil)
 		client = &http.Client{
 			Jar: cookie,
 		}
-		stockOne = &stockexchange.Stock{
+
+		stock = &stockexchange.Stock{
 			Symbol:   "B",
 			Name:     "Bengaza",
 			AskPrice: 5,
 			BidPrice: 10,
 		}
 
-		data, err := json.Marshal(stockOne)
+		invoice = &stockexchange.Invoice{
+			Symbol:   "B",
+			Price:    5,
+			Quantity: 3,
+		}
+
+		stockData, err := json.Marshal(stock)
 		Expect(err).NotTo(HaveOccurred())
-		stockOneJSON = bytes.NewBuffer(data)
+		stockJSON = bytes.NewBuffer(stockData)
+
+		invoiceData, err := json.Marshal(invoice)
+		Expect(err).NotTo(HaveOccurred())
+		invoiceJSON = bytes.NewBuffer(invoiceData)
+	})
+
+	JustBeforeEach(func() {
 		server = httptest.NewServer(handler)
 	})
 
@@ -113,14 +129,14 @@ var _ = Describe("API", func() {
 		})
 
 		It("buys a stock", func() {
-			resp, err := client.Post(fmt.Sprintf("%s/buy?quantity=2", server.URL), "application/json", stockOneJSON)
+			resp, err := client.Post(fmt.Sprintf("%s/buy?quantity=2", server.URL), "application/json", stockJSON)
 			Expect(err).NotTo(HaveOccurred())
 			defer resp.Body.Close()
 			Expect(resp.StatusCode).To(Equal(http.StatusOK))
 		})
 
 		It("returns a JSON output", func() {
-			resp, err := client.Post(fmt.Sprintf("%s/buy?quantity=2", server.URL), "application/json", stockOneJSON)
+			resp, err := client.Post(fmt.Sprintf("%s/buy?quantity=2", server.URL), "application/json", stockJSON)
 			Expect(err).NotTo(HaveOccurred())
 
 			defer resp.Body.Close()
@@ -142,7 +158,7 @@ var _ = Describe("API", func() {
 
 		Context("when the quantity is not provided", func() {
 			It("returns an error", func() {
-				resp, err := client.Post(server.URL, "application/json", stockOneJSON)
+				resp, err := client.Post(server.URL, "application/json", stockJSON)
 				Expect(err).NotTo(HaveOccurred())
 
 				defer resp.Body.Close()
@@ -156,7 +172,7 @@ var _ = Describe("API", func() {
 
 		Context("when the quantity is not integer", func() {
 			It("returns an error", func() {
-				resp, err := client.Post(fmt.Sprintf("%s/buy?quantity=why", server.URL), "application/json", stockOneJSON)
+				resp, err := client.Post(fmt.Sprintf("%s/buy?quantity=why", server.URL), "application/json", stockJSON)
 				Expect(err).NotTo(HaveOccurred())
 
 				defer resp.Body.Close()
@@ -166,7 +182,7 @@ var _ = Describe("API", func() {
 
 		Context("when the purchase operation fails", func() {
 			It("returns an error", func() {
-				resp, err := client.Post(fmt.Sprintf("%s/buy?quantity=-1", server.URL), "application/json", stockOneJSON)
+				resp, err := client.Post(fmt.Sprintf("%s/buy?quantity=-1", server.URL), "application/json", stockJSON)
 				Expect(err).NotTo(HaveOccurred())
 
 				defer resp.Body.Close()
@@ -187,7 +203,7 @@ var _ = Describe("API", func() {
 		})
 
 		JustBeforeEach(func() {
-			resp, err := client.Post(fmt.Sprintf("%s/buy?quantity=2", server.URL), "application/json", stockOneJSON)
+			resp, err := client.Post(fmt.Sprintf("%s/buy?quantity=2", server.URL), "application/json", stockJSON)
 			Expect(err).NotTo(HaveOccurred())
 			defer resp.Body.Close()
 			Expect(resp.StatusCode).To(Equal(http.StatusOK))
@@ -195,7 +211,7 @@ var _ = Describe("API", func() {
 
 		// Due to limitations of client we cannot preserve the session
 		XIt("sells shares", func() {
-			resp, err := client.Post(fmt.Sprintf("%s/sell?symbol=B&quantity=10&price=10", server.URL), "application/json", nil)
+			resp, err := client.Post(fmt.Sprintf("%s/sell", server.URL), "application/json", invoiceJSON)
 			Expect(err).NotTo(HaveOccurred())
 
 			defer resp.Body.Close()
@@ -204,7 +220,7 @@ var _ = Describe("API", func() {
 
 		// Due to limitations of client we cannot preserve the session
 		XIt("returns a JSON output", func() {
-			resp, err := client.Post(fmt.Sprintf("%s/sell?symbol=B&quantity=10&price=10", server.URL), "application/json", nil)
+			resp, err := client.Post(fmt.Sprintf("%s/sell", server.URL), "application/json", invoiceJSON)
 			Expect(err).NotTo(HaveOccurred())
 
 			defer resp.Body.Close()
@@ -216,85 +232,11 @@ var _ = Describe("API", func() {
 
 		Context("when the sell operation fails", func() {
 			It("returns the error", func() {
-				resp, err := client.Post(fmt.Sprintf("%s/sell?symbol=B&quantity=10&price=-10", server.URL), "application/json", nil)
-				Expect(err).NotTo(HaveOccurred())
-
-				defer resp.Body.Close()
-				Expect(resp.StatusCode).To(Equal(http.StatusInternalServerError))
-
-				data, err := ioutil.ReadAll(resp.Body)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(string(data)).To(Equal("The price cannot be negative number\n"))
-			})
-		})
-
-		Context("when symbol parameter is missing", func() {
-			It("returns an error", func() {
 				resp, err := client.Post(fmt.Sprintf("%s/sell", server.URL), "application/json", nil)
 				Expect(err).NotTo(HaveOccurred())
 
 				defer resp.Body.Close()
 				Expect(resp.StatusCode).To(Equal(http.StatusBadRequest))
-
-				data, err := ioutil.ReadAll(resp.Body)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(string(data)).To(Equal("The 'symbol' parameter is missing\n"))
-			})
-		})
-
-		Context("when quantity parameter is missing", func() {
-			It("returns an error", func() {
-				resp, err := client.Post(fmt.Sprintf("%s/sell?symbol=B", server.URL), "application/json", nil)
-				Expect(err).NotTo(HaveOccurred())
-
-				defer resp.Body.Close()
-				Expect(resp.StatusCode).To(Equal(http.StatusBadRequest))
-
-				data, err := ioutil.ReadAll(resp.Body)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(string(data)).To(Equal("The 'quantity' parameter is missing\n"))
-			})
-		})
-
-		Context("when quantity parameter is not integer", func() {
-			It("returns an error", func() {
-				resp, err := client.Post(fmt.Sprintf("%s/sell?symbol=B&price=10&quantity=no_quantity", server.URL), "application/json", nil)
-				Expect(err).NotTo(HaveOccurred())
-
-				defer resp.Body.Close()
-				Expect(resp.StatusCode).To(Equal(http.StatusBadRequest))
-
-				data, err := ioutil.ReadAll(resp.Body)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(string(data)).To(Equal("The provided quantity is not integer type\n"))
-			})
-		})
-
-		Context("when price parameter is missing", func() {
-			It("returns an error", func() {
-				resp, err := client.Post(fmt.Sprintf("%s/sell?symbol=B&quantity=10", server.URL), "application/json", nil)
-				Expect(err).NotTo(HaveOccurred())
-
-				defer resp.Body.Close()
-				Expect(resp.StatusCode).To(Equal(http.StatusBadRequest))
-
-				data, err := ioutil.ReadAll(resp.Body)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(string(data)).To(Equal("The 'price' parameter is missing\n"))
-			})
-		})
-
-		Context("when price parameter is not number", func() {
-			It("returns an error", func() {
-				resp, err := client.Post(fmt.Sprintf("%s/sell?symbol=B&quantity=10&price=no_price", server.URL), "application/json", nil)
-				Expect(err).NotTo(HaveOccurred())
-
-				defer resp.Body.Close()
-				Expect(resp.StatusCode).To(Equal(http.StatusBadRequest))
-
-				data, err := ioutil.ReadAll(resp.Body)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(string(data)).To(Equal("The provided price is not a valid numeric type\n"))
 			})
 		})
 	})
