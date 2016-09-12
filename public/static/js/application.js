@@ -52,6 +52,8 @@ class Portfolio extends React.Component {
       );
     }
 
+    let onViewClick = this.props.onViewClick
+
     return (
       <div className="panel panel-info">
         <div className="panel-heading">
@@ -67,6 +69,7 @@ class Portfolio extends React.Component {
                 <th>Name</th>
                 <th>Paid Price</th>
                 <th>Quantity</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -78,6 +81,7 @@ class Portfolio extends React.Component {
                       <td>{item.name}</td>
                       <td>{item.paidPrice}</td>
                       <td>{item.quantity}</td>
+                      <td><button type="button" className="btn btn-link btn-mini" onClick={() => onViewClick(item.symbol)}>View</button></td>
                     </tr>
                   );
                 })
@@ -238,7 +242,7 @@ class ApplicationContainer extends React.Component {
       <div>
         <NavigationBar onSearchClick={this.search} />
         <div className="container container-small">
-          <Portfolio value={this.state.portfolio} />
+          <Portfolio value={this.state.portfolio} onViewClick={this.search} />
           <SearchContainer result={this.state.search.result} message={this.state.search.message} onBuyClick={this.buy} onSellClick={this.sell}/>
           <Alert level={this.state.alert.level} message={this.state.alert.message}/>
         </div>

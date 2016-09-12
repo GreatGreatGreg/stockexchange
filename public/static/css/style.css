@@ -40,6 +40,11 @@
     animation: progress-bar-stripes 1s linear infinite;
 }
 
+.table>tbody>tr>td>.btn {
+    padding: 0;
+    margin: 0;
+}
+
 html {
   position: relative;
   min-height: 100%;
