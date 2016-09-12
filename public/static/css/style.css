@@ -26,3 +26,16 @@
 .container-small, .container-large {
     max-width: 100%;
 }
+
+.progress {
+  margin-bottom: 0;
+  height: 5px;
+}
+
+.progress.active .progress-bar {
+    -webkit-animation: progress-bar-stripes 1s linear infinite;
+    -moz-animation: progress-bar-stripes 1s linear infinite;
+    -ms-animation: progress-bar-stripes 1s linear infinite;
+    -o-animation: progress-bar-stripes 1s linear infinite;
+    animation: progress-bar-stripes 1s linear infinite;
+}

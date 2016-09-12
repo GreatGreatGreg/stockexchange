@@ -56,7 +56,7 @@ class Portfolio extends React.Component {
       <div className="panel panel-info">
         <div className="panel-heading">
           <h3 className="panel-title">
-            <span>Portfolio</span>
+            <span className="text-uppercase">Portfolio</span>
           </h3>
         </div>
         <div className="panel-body">
@@ -196,11 +196,33 @@ class Alert extends React.Component {
   }
 }
 
+class ProgressBar extends React.Component {
+  constructor() {
+    super();
+  }
+
+  render() {
+    if(!this.props.visible) {
+      return <div></div>;
+    }
+
+    var style = {width: "100%"};
+    return (
+      <div className="progress">
+        <div style={style} className="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">
+          <span className="sr-only">40% Complete (success)</span>
+        </div>
+      </div>
+    );
+  }
+}
+
 class ApplicationContainer extends React.Component {
   constructor() {
     super();
 
     this.state = {
+      waiting: false,
       portfolio: {balance: 100000, shares:[]},
       search:{result: [], message: ""},
       alert: {level: "info", message: ""},
@@ -214,6 +236,7 @@ class ApplicationContainer extends React.Component {
   render() {
     return (
       <div>
+        <ProgressBar visible={this.state.waiting} />
         <NavigationBar onSearchClick={this.search} />
         <div className="container container-small">
           <Portfolio value={this.state.portfolio} />
@@ -228,11 +251,11 @@ class ApplicationContainer extends React.Component {
     $.ajax({
       url: "/api/v1/portfolio",
       dataType: 'json',
-      error: function() {
-        this.setState({alert: {level: "danger", message:""}});
+      error: function(jqXHR, textStatus, errorThrown) {
+        this.setState({waiting: false, alert: {level: "danger", message: jqXHR.responseText}});
       }.bind(this),
       success: function(portfolio) {
-        this.setState({portfolio: portfolio});
+        this.setState({waiting: false, portfolio: portfolio});
       }.bind(this)
     });
   }
@@ -241,11 +264,14 @@ class ApplicationContainer extends React.Component {
     $.ajax({
       url: "/api/v1/search?query="+text,
       dataType: 'json',
+      beforeSend: function() {
+        this.setState({waiting: true})
+      }.bind(this),
       error: function() {
-        this.setState({portfolio: this.state.portfolio, search:{result: [], message: "Nothing has been found"}})
+        this.setState({waiting: false, portfolio: this.state.portfolio, search:{result: [], message: "Nothing has been found"}})
       }.bind(this),
       success: function(stock) {
-        this.setState({portfolio: this.state.portfolio, search:{result: stock, message: ""}})
+        this.setState({waiting: false, portfolio: this.state.portfolio, search:{result: stock, message: ""}})
       }.bind(this)
     });
   }
@@ -257,11 +283,14 @@ class ApplicationContainer extends React.Component {
       type: "POST",
       dataType: 'json',
       data:  JSON.stringify(stock),
+      beforeSend: function() {
+        this.setState({waiting: true})
+      }.bind(this),
       error: function(jqXHR, textStatus, errorThrown) {
-        this.setState({alert: {level: "danger", message: jqXHR.responseText}});
+        this.setState({waiting: false, alert: {level: "danger", message: jqXHR.responseText}});
       }.bind(this),
       success: function(portfolio) {
-        this.setState({portfolio: portfolio, alert: {level: "info", message: ""}})
+        this.setState({waiting: false, portfolio: portfolio, alert: {level: "info", message: ""}})
       }.bind(this)
     });
   }
@@ -278,11 +307,14 @@ class ApplicationContainer extends React.Component {
       type: "POST",
       dataType: 'json',
       data:  JSON.stringify(invoice),
+      beforeSend: function() {
+        this.setState({waiting: true})
+      }.bind(this),
       error: function(jqXHR, textStatus, errorThrown) {
-        this.setState({alert: {level: "danger", message: jqXHR.responseText}});
+        this.setState({waiting: false, alert: {level: "danger", message: jqXHR.responseText}});
       }.bind(this),
       success: function(portfolio) {
-        this.setState({portfolio: portfolio, alert: {level: "info", message: ""}})
+        this.setState({waiting: false, portfolio: portfolio, alert: {level: "info", message: ""}})
       }.bind(this)
     });
   }
