@@ -29,7 +29,7 @@
 
 .progress {
   margin-bottom: 0;
-  height: 5px;
+  height: 10px;
 }
 
 .progress.active .progress-bar {
@@ -38,4 +38,21 @@
     -ms-animation: progress-bar-stripes 1s linear infinite;
     -o-animation: progress-bar-stripes 1s linear infinite;
     animation: progress-bar-stripes 1s linear infinite;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 10px;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 10px;
 }
