@@ -246,12 +246,15 @@ class ApplicationContainer extends React.Component {
       <div>
         <NavigationBar onSearchClick={this.search} />
         <div className="container container-small">
+          <ProgressBar visible={this.state.waiting} />
           <Portfolio value={this.state.portfolio} onViewClick={this.search} />
           <SearchContainer result={this.state.search.result} message={this.state.search.message} onBuyClick={this.buy} onSellClick={this.sell}/>
           <Alert level={this.state.alert.level} message={this.state.alert.message}/>
         </div>
         <footer className="footer">
-          <ProgressBar visible={this.state.waiting} />
+          <div className="container">
+            <p className="text-muted">developed by <a href="https://github.com/svett">Svetlin Ralchev</a></p>
+          </div>
         </footer>
       </div>
     );
