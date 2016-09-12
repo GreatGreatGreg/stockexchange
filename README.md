@@ -13,6 +13,25 @@ $ git submodule update --init --recursive
 $ go run main.go
 ```
 
+#### Running tests
+
+In order to start contributing to the project, you should install
+[ginkgo](http://github.com/onsi/ginkgo) and
+[gomega](http://github.com/ons/gomega) package that are used in unit and
+integration tests:
+
+```bash
+$ go get github.com/onsi/ginkgo/ginkgo
+$ go get github.com/onsi/gomega
+```
+
+```bash
+# Running the integration tests
+$ ginkgo integration/
+# Running the unit tests
+$ ginkgo .
+```
+
 # License
 
 *MIT*
