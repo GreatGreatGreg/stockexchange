@@ -2,6 +2,7 @@ package stockexchange
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -9,9 +10,7 @@ import (
 )
 
 func Balance(w http.ResponseWriter, request *http.Request) {
-	err := OpenSession(w, request, func(p *Portfolio) error {
-		encoder := giraffe.NewHTTPEncoder(w)
-		encoder.EncodeJSON(p)
+	err := InSession(w, request, func(p *Portfolio) error {
 		return nil
 	})
 
@@ -60,13 +59,26 @@ func Buy(w http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	err = OpenSession(w, request, func(p *Portfolio) error {
-		if err := p.Buy(&stock, quantity); err != nil {
-			return err
-		}
-		encoder := giraffe.NewHTTPEncoder(w)
-		encoder.EncodeJSON(p)
-		return nil
+	err = InSession(w, request, func(p *Portfolio) error {
+		return p.Buy(&stock, quantity)
+	})
+
+	if err != nil {
+		HTTPError(w, request, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func Sell(w http.ResponseWriter, request *http.Request) {
+	var invoice Invoice
+
+	if err := json.NewDecoder(request.Body).Decode(&invoice); err != nil {
+		HTTPError(w, request, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err := InSession(w, request, func(p *Portfolio) error {
+		return p.Sell(&invoice)
 	})
 
 	if err != nil {
@@ -74,24 +86,7 @@ func Buy(w http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func Sell(w http.ResponseWriter, request *http.Request) {
-	var invoice Invoice
-	if err := json.NewDecoder(request.Body).Decode(&invoice); err != nil {
-		HTTPError(w, request, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err := OpenSession(w, request, func(p *Portfolio) error {
-		if err := p.Sell(&invoice); err != nil {
-			return err
-		}
-
-		encoder := giraffe.NewHTTPEncoder(w)
-		encoder.EncodeJSON(p)
-		return nil
-	})
-
-	if err != nil {
-		HTTPError(w, request, err.Error(), http.StatusInternalServerError)
-	}
+func HTTPError(w http.ResponseWriter, r *http.Request, err string, code int) {
+	http.Error(w, err, code)
+	log.Printf("Request: %s Method: %s Error: %s", r.URL.String(), r.Method, err)
 }

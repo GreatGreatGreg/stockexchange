@@ -203,14 +203,13 @@ var _ = Describe("API", func() {
 		})
 
 		JustBeforeEach(func() {
-			resp, err := client.Post(fmt.Sprintf("%s/buy?quantity=2", server.URL), "application/json", stockJSON)
+			resp, err := client.Post(fmt.Sprintf("%s/buy?quantity=100", server.URL), "application/json", stockJSON)
 			Expect(err).NotTo(HaveOccurred())
 			defer resp.Body.Close()
 			Expect(resp.StatusCode).To(Equal(http.StatusOK))
 		})
 
-		// Due to limitations of client we cannot preserve the session
-		XIt("sells shares", func() {
+		It("sells shares", func() {
 			resp, err := client.Post(fmt.Sprintf("%s/sell", server.URL), "application/json", invoiceJSON)
 			Expect(err).NotTo(HaveOccurred())
 
@@ -218,8 +217,7 @@ var _ = Describe("API", func() {
 			Expect(resp.StatusCode).To(Equal(http.StatusOK))
 		})
 
-		// Due to limitations of client we cannot preserve the session
-		XIt("returns a JSON output", func() {
+		It("returns a JSON output", func() {
 			resp, err := client.Post(fmt.Sprintf("%s/sell", server.URL), "application/json", invoiceJSON)
 			Expect(err).NotTo(HaveOccurred())
 
