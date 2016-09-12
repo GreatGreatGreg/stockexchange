@@ -34,7 +34,7 @@ class Portfolio extends React.Component {
   }
 
   render() {
-    if(this.props.value.shares.length == 0) {
+    if(!this.props.value.shares || this.props.value.shares.length == 0) {
       return (
         <div className="panel panel-info">
           <div className="panel-heading">
@@ -97,18 +97,18 @@ class SearchContainer extends React.Component {
   }
 
   render() {
-    if(this.props.infoMessage) {
+    if(this.props.message) {
       return (
         <div className="panel panel-danger">
           <div className="panel-body">
-            <h4 className="text-center">{this.props.infoMessage}</h4>
+            <h4 className="text-center">{this.props.message}</h4>
           </div>
         </div>
       );
     }
 
-    if(this.props.result.length > 0) {
-      let grid = (
+    if(this.props.result && this.props.result.length > 0) {
+      return (
         <div className="panel panel-warning">
           <div className="panel-heading">
             <h3 className="panel-title">
@@ -155,28 +155,46 @@ class SearchContainer extends React.Component {
           </div>
         </div>
       );
-
-      if(this.props.errorMessage) {
-        return (
-          <div>
-            {grid}
-            <div className="alert alert-danger" role="alert">{this.props.errorMessage}</div>
-          </div>
-        );
-      } else {
-        return grid;
-      }
     }
 
-    return <div/>;
+    return <div></div>;
+  }
+}
+
+class Alert extends React.Component {
+  constructor() {
+    super()
+    this.close = this.close.bind(this);
+    this.state = {visible: true};
+  }
+
+  render() {
+    if(this.state.visible && this.props.message) {
+      return (
+        <div className={"alert alert-master alert-" + this.props.level} role="alert">
+          <button type="button" className="close" onClick={this.close}>×</button>
+          <span>{this.props.message}</span>
+        </div>
+      );
+    }
+    return <div></div>;
+  }
+
+  close() {
+    this.setState({visible: false});
   }
 }
 
 class ApplicationContainer extends React.Component {
   constructor() {
     super();
-    this.state = {portfolio: {balance: 100000, shares:[]}, search:{result: [], message: ""}}
+    this.state = {
+      portfolio: {balance: 100000, shares:[]},
+      search:{result: [], message: ""},
+      alert: {level: "info", message: ""},
+    };
     this.search = this.search.bind(this);
+    this.buy = this.buy.bind(this);
   }
 
   render() {
@@ -185,7 +203,8 @@ class ApplicationContainer extends React.Component {
         <NavigationBar onSearchClick={this.search} />
         <div className="container container-small">
           <Portfolio value={this.state.portfolio} />
-          <SearchContainer result={this.state.search.result} infoMessage={this.state.search.message} />
+          <SearchContainer result={this.state.search.result} message={this.state.search.message} />
+          <Alert level={this.state.alert.level} message={this.state.alert.message}/>
         </div>
       </div>
     );
@@ -195,8 +214,11 @@ class ApplicationContainer extends React.Component {
     $.ajax({
       url: "/api/v1/portfolio",
       dataType: 'json',
+      error: function() {
+        this.setState({alert: {level: "danger", message:""}});
+      }.bind(this),
       success: function(portfolio) {
-        this.setState({portfolio: portfolio, search: this.state.search})
+        this.setState({portfolio: portfolio});
       }.bind(this)
     });
   }
@@ -210,6 +232,20 @@ class ApplicationContainer extends React.Component {
       }.bind(this),
       success: function(stock) {
         this.setState({portfolio: this.state.portfolio, search:{result: stock, message: ""}})
+      }.bind(this)
+    });
+  }
+
+  buy(stock, quantity) {
+    $.ajax({
+      url: "/api/v1/buy?quantity="+quantity,
+      dataType: 'json',
+      data: stock,
+      error: function(msg) {
+        this.setState({portfolio: portfolio, search: this.state.search})
+      }.bind(this),
+      success: function(portfolio) {
+        this.setState({portfolio: portfolio, search: this.state.search})
       }.bind(this)
     });
   }
