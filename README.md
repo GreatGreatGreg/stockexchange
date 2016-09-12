@@ -3,6 +3,10 @@
 Stockexchange is a web platform for stock trading. You can visit its live
 instance [here](https://stockex.herokuapp.com/).
 
+The application is written in [Golang](https://www.golang.org),
+[React](http://react-bootstrap.github.io) and
+Boostrap(https://getbootstrap.com)
+
 # Getting Started
 
 In order to build and run the application you will need the recent version of Go 1.7.1.
