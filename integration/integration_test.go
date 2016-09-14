@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/onsi/gomega/gexec"
-	"github.com/svett/stockexchange"
+	"github.com/svett/stockexchange/stockexchange"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

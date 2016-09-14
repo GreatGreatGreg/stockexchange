@@ -28,7 +28,7 @@ type StockExchangeRunner struct {
 }
 
 func (ex *StockExchangeRunner) Compile() error {
-	bin, err := gexec.Build("github.com/svett/stockExchange/cmd/stockexchange")
+	bin, err := gexec.Build("github.com/svett/stockExchange/")
 	if err != nil {
 		return err
 	}
