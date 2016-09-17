@@ -10,7 +10,7 @@ class NavigationBar extends React.Component {
           <div className="navbar-header">
             <a className="navbar-brand" href="#">StockExchange</a>
           </div>
-          <div id="navbar" className="collapse navbar-collapse">
+          <div id="navbar">
             <div className="navbar-form navbar-right">
               <div className="input-group">
                 <input type="text" ref="searchBox" className="form-control" placeholder="Search for..."/>
